@@ -84,17 +84,6 @@ class Sudoku:
                                 self.grid[other_candidate] = self.grid[other_candidate].strip(twin[0])
                                 if self.debug: print('  ...to',self.grid[other_candidate])
 
-    def clone(self):
-        copy = Sudoku('0'*81)
-        copy.boxes = self.boxes
-        copy.grid = self.grid
-        copy.combo = self.combo
-        copy.units = self.units
-        copy.peers = self.peers
-        copy.debug = self.debug
-        if self.debug: print('\n sudoku cloned')
-        return copy
-
     def solve(self):
         solutions = []
         while True:
