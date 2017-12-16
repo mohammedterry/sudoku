@@ -1,7 +1,7 @@
 class Sudoku:
     x, y = 'ABCDEFGHI', '123456789'
 
-    def __init__(self, puzzle_str, diagonal = True, debug = False):
+    def __init__(self, puzzle_str, diagonal = False, debug = False):
         if len(puzzle_str) == 9*9:
             self.boxes = self.cross(self.x, self.y)
             self.grid = self.grid(puzzle_str)
@@ -91,58 +91,59 @@ class Sudoku:
         copy.combo = self.combo
         copy.units = self.units
         copy.peers = self.peers
+        copy.debug = self.debug
         if self.debug: print('\n sudoku cloned')
         return copy
 
-    def reduce_puzzle(self):
+    def solve(self):
         solutions = []
         while True:
-            self.eliminate()
             self.only_choice()
             self.naked_twins()
+            self.eliminate()
+            if len([box for box in self.grid.keys() if len(self.grid[box]) == 0]): #BASE CONDITION - if any squares are empty then its invalid solution
+                if self.debug: print("\n invalid solution")
+                return False
             prev_solutions = solutions
             solutions = [value for value in self.grid.keys() if len(self.grid[value]) == 1]
             if len(solutions) == 9*9: 
                 if self.debug: print('\n solved')
+                self.display()
+                return True
+            elif all(len(self.grid[s]) == 1 for s in self.boxes):
+                self.display()
                 return True
             elif len(prev_solutions) == len(solutions): 
                 if self.debug: print('\n stalled')
-                return False    
+                self.trial_and_error()
+                return False
 
     def trial_and_error(self):     
         min_val, min_box = min((len(self.grid[min_box]), min_box) for min_box in self.boxes if len(self.grid[min_box]) > 1)
-        for val in self.grid[min_box]:
-            if self.debug: print('\n trial and error:  \n',min_box,min_val)
-            clone = self.clone()
-            clone.grid[min_box] = val
-            clone.solve()
-
-    def solve(self):
-        solved = self.reduce_puzzle()
-        if solved is False: 
-            solutions = [value for value in self.grid.keys() if len(self.grid[value]) == 1]
-            if len([box for box in self.grid.keys() if len(self.grid[box]) == 0]): #failed if any squares are empty
-                if self.debug: print("\n incomplete solution")
-                return False
-            #elif [self.grid[box] == self.grid[peer] for box in self.boxes for peer in self.peers]: #failed if any squares are duplicates of peers
-            #    print("\n invalid solution")
-            #    return False
-            self.trial_and_error()
-        else:
-            self.display()
-            return True
- 
-if __name__ == '__main__':    
-    example_puzzle = '..3.2.6..9..3.5..1..18.64....81.29..7.......8..67.82....26.95..8..2.3..9..5.1.3..'
-    example_puzzle3 = '..3...6..9..3.5..1..18.64....8..2...7.......8..67.82....26..5..8..2....9..5.1.3..'
-    example_puzzle2 = '4.....8.5.3..........7......2.....6.....8.4......1.......6.3.7.5..2.....1.4......'
-    diag_sudoku_grid = '2.............62....1....7...6..8...3...9...7...6..4...4....8....52.............3'
-    a = Sudoku(diag_sudoku_grid)
-    a.solve()
-    print('\n')
-    b = Sudoku(example_puzzle3, diagonal = False)
-    b.solve()
-    print('\n')
-    c = Sudoku(example_puzzle, diagonal = False)
-    c.solve()
-
+        if self.debug: print('\n trial and error:  \n',min_val,min_box,self.grid[min_box])
+        for v in self.grid[min_box]:
+            old_grid = self.grid.copy()
+            self.grid[min_box] = v
+            self.solve()
+            self.grid = old_grid
+            
+if __name__ == '__main__':            
+    diag = '2.............62....1....7...6..8...3...9...7...6..4...4....8....52.............3'
+    easy = '.21.37..4...24..9..63..5...2...16.38.39...15.81.35...9...4..91..4..79...3..12.46.'
+    med = '..37.896.........39...3..4...8..5.7.2.9...8.6.7.6..5...3..9...86.........152.76..'
+    hard = '....41..8..87.2.153....8.....3....6...5.3.2...4....7.....4....253.2.79..7..95....'
+    evil = '.....549..491........9..7...2.6.7.3.6.......7.3.4.8.1...2..1........362..578.....'
+    udacity = '4.....8.5.3..........7......2.....6.....8.4......1.......6.3.7.5..2.....1.4......'
+    d,e,m,h,v,u = Sudoku(diag,diagonal = True),Sudoku(easy),Sudoku(med),Sudoku(hard),Sudoku(evil),Sudoku(udacity)
+    print('\n diagonal:')
+    d.solve()
+    print('\n easy:')
+    e.solve()
+    print('\n medium:')
+    m.solve()
+    print('\n hard:')
+    h.solve()
+    print('\n evil:')
+    v.solve()
+    print('\n udacity:')
+    u.solve()
