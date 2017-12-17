@@ -81,7 +81,8 @@ class Sudoku:
                             if self.debug: print('\n naked twin:',twin)
                             if len(set(twin[0]).intersection(self.grid[other_candidate])) > 0:
                                 if self.debug: print('  modifying',other_candidate,'from',self.grid[other_candidate])
-                                self.grid[other_candidate] = self.grid[other_candidate].strip(twin[0])
+                                for n in twin[0]:
+                                    self.grid[other_candidate] = self.grid[other_candidate].replace(n,'')
                                 if self.debug: print('  ...to',self.grid[other_candidate])
 
     def solve(self):
