@@ -79,7 +79,7 @@ class Sudoku:
                     for other_candidate in candidates:
                         if other_candidate not in twin[1]:
                             if self.debug: print('\n naked twin:',twin)
-                            if twin[0] in self.grid[other_candidate]:
+                            if len(set(twin[0]).intersection(self.grid[other_candidate])) > 0:
                                 if self.debug: print('  modifying',other_candidate,'from',self.grid[other_candidate])
                                 self.grid[other_candidate] = self.grid[other_candidate].strip(twin[0])
                                 if self.debug: print('  ...to',self.grid[other_candidate])
