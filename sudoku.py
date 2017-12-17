@@ -77,7 +77,7 @@ class Sudoku:
             for twin in twins.items():
                 if len(twin[1]) > 1 and len(twin[0]) == 2: #make sure its a twin, not a triplet, etc
                     for other_candidate in candidates:
-                        if other_candidate != twin[1][0] and other_candidate != twin[1][1]:
+                        if other_candidate not in twin[1]:
                             if self.debug: print('\n naked twin:',twin)
                             if twin[0] in self.grid[other_candidate]:
                                 if self.debug: print('  modifying',other_candidate,'from',self.grid[other_candidate])
