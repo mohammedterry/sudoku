@@ -97,16 +97,18 @@ class Sudoku:
             prev_solutions = solutions
             solutions = [value for value in self.grid.keys() if len(self.grid[value]) == 1]
             if len(solutions) == 9*9: 
-                if self.debug: print('\n solved')
-                self.display()
-                return True
+                if self.debug: 
+                    print('\n solved-1') 
+                    self.display()
+                return self.grid
             elif all(len(self.grid[s]) == 1 for s in self.boxes):
-                self.display()
-                return True
+                if self.debug: 
+                    print('\n solved-2') 
+                    self.display()
+                return self.grid
             elif len(prev_solutions) == len(solutions): 
                 if self.debug: print('\n stalled')
-                self.trial_and_error()
-                return False
+                return self.trial_and_error()
 
     def trial_and_error(self):     
         min_val, min_box = min((len(self.grid[min_box]), min_box) for min_box in self.boxes if len(self.grid[min_box]) > 1)
@@ -114,9 +116,26 @@ class Sudoku:
         for v in self.grid[min_box]:
             old_grid = self.grid.copy()
             self.grid[min_box] = v
-            self.solve()
+            attempt = self.solve()
+            if attempt != False:
+                return attempt
             self.grid = old_grid
-            
+        return False
+
+#for testing purposes            
+def solve(puzzle):
+    s = Sudoku(puzzle, diagonal = True)
+    result = s.solve()
+    if result != False:
+        return result
+
+def naked_twins(grid):
+    s = Sudoku('0'*81, debug = True)
+    s.grid = grid
+    s.naked_twins()
+    s.display()
+    return s.grid
+
 if __name__ == '__main__':            
     diag = '2.............62....1....7...6..8...3...9...7...6..4...4....8....52.............3'
     easy = '.21.37..4...24..9..63..5...2...16.38.39...15.81.35...9...4..91..4..79...3..12.46.'
@@ -127,13 +146,19 @@ if __name__ == '__main__':
     d,e,m,h,v,u = Sudoku(diag,diagonal = True),Sudoku(easy),Sudoku(med),Sudoku(hard),Sudoku(evil),Sudoku(udacity)
     print('\n diagonal:')
     d.solve()
+    d.display()
     print('\n easy:')
     e.solve()
+    e.display()
     print('\n medium:')
     m.solve()
+    m.display()
     print('\n hard:')
     h.solve()
+    h.display()
     print('\n evil:')
     v.solve()
+    v.display()
     print('\n udacity:')
     u.solve()
+    u.display()
